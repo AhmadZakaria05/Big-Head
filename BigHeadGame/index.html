@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Big Head Whack! – Whack-a-Mole Face Game</title>
+  <meta name="description" content="A fun Whack-a-Mole game where moles and your own face pop up — hit the moles, dodge your face!">
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+  <!-- face-api.js loaded synchronously so it is ready before our scripts use it -->
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+</head>
+<body>
+  <div id="app">
+
+    <!-- ═══════════════════════ START SCREEN ═══════════════════════ -->
+    <section id="screen-start" class="screen active" aria-label="Start Screen">
+      <!-- Branding (Title & Subtitle) -->
+      <header class="global-branding">
+        <h1 class="brand-title">BIG HEAD</h1>
+        <h2 class="brand-subtitle">IEEE MEGAMEET</h2>
+      </header>
+
+      <div class="glass-card start-card">
+
+        <p class="subtitle">Whack the moles · Dodge your own face!</p>
+
+        <!-- Mole preview badges -->
+        <div class="preview-badges">
+          <div class="badge badge-good">🐭 <span>+1 Point</span></div>
+          <div class="badge badge-bad">😬 <span>−2 Points</span></div>
+        </div>
+
+        <div class="input-group">
+          <label for="player-name" class="input-label">Your Name</label>
+          <input type="text" id="player-name" placeholder="Enter your name…" autocomplete="off" maxlength="20">
+        </div>
+
+        <button id="btn-start" class="btn-primary" aria-label="Start game">Let's Play! 🎮</button>
+        <button id="btn-show-leaderboard" class="btn-secondary" aria-label="View leaderboard">🏆 Leaderboard</button>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ CAMERA SCREEN ═══════════════════════ -->
+    <section id="screen-camera" class="screen" aria-label="Camera Screen">
+      <div class="glass-card camera-card">
+        <h2>📸 Snap Your Face</h2>
+        <p class="subtitle">Center your face — we'll detect & crop it automatically</p>
+
+        <div class="camera-wrap">
+          <!-- Live video feed -->
+          <div class="camera-circle">
+            <video id="camera-video" autoplay playsinline muted></video>
+            <!-- Face detection guide ring -->
+            <div class="face-guide-ring"></div>
+            <!-- Scanning animation line -->
+            <div class="scan-line" id="scan-line" style="display:none"></div>
+          </div>
+
+          <!-- Loading / Status text -->
+          <div id="camera-status" class="camera-status">Initializing camera…</div>
+        </div>
+
+        <!-- Hidden canvas for capture -->
+        <canvas id="camera-canvas" style="display:none;"></canvas>
+
+        <!-- Preview of captured / cropped face -->
+        <div id="face-preview-wrap" class="face-preview-wrap" style="display:none">
+          <p class="preview-label">Cropped Face Preview</p>
+          <div class="face-preview-circle">
+            <img id="face-preview-img" src="" alt="Cropped face preview">
+          </div>
+        </div>
+
+        <div class="camera-actions">
+          <button id="btn-capture" class="btn-primary" disabled aria-label="Take photo">📷 Take Photo</button>
+          <button id="btn-retake" class="btn-secondary" style="display:none" aria-label="Retake photo">🔄 Retake</button>
+          <button id="btn-play-with-face" class="btn-accent" style="display:none" aria-label="Play with this face">Play! →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ GAME SCREEN ═══════════════════════ -->
+    <section id="screen-game" class="screen" aria-label="Game Screen">
+
+      <!-- HUD -->
+      <div class="game-hud">
+        <div class="hud-box" id="hud-time-box">
+          <span class="hud-label">⏱ Time</span>
+          <span id="game-time" class="hud-value">20</span>
+        </div>
+        <div class="hud-box hud-score">
+          <span class="hud-label">⭐ Score</span>
+          <span id="game-score" class="hud-value">0</span>
+        </div>
+        <div class="hud-box">
+          <span class="hud-label">🔥 Streak</span>
+          <span id="game-streak" class="hud-value">0</span>
+        </div>
+      </div>
+
+      <!-- Combo banner (hidden until needed) -->
+      <div id="combo-banner" class="combo-banner" aria-live="polite"></div>
+
+      <!-- 3×3 Mole Grid -->
+      <div id="mole-grid" class="mole-grid" aria-label="Game grid">
+        <!-- 9 holes generated here by JS -->
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════ RESULT SCREEN ═══════════════════════ -->
+    <section id="screen-result" class="screen" aria-label="Result Screen">
+      <div class="glass-card result-card-new">
+        
+        <!-- 1. Result Title -->
+        <h2 class="result-title-new">Your Result</h2>
+        <p id="result-message" class="result-message"></p>
+        
+        <!-- 2. Character (center focus) -->
+        <div class="result-character-container">
+          <div class="result-character" id="result-character">
+            <!-- Body SVG injected by JS -->
+            <div id="result-body-wrap" class="result-body-wrap">
+              <img id="result-body-img" src="assets/body.svg" alt="Character body" class="result-body-img">
+            </div>
+            <!-- Player face head – scaled by score -->
+            <div id="result-head-container" class="result-head-container">
+              <img id="result-head-img" src="" alt="Player face" class="result-head-img">
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Score Display -->
+        <div class="result-score-new">
+          <span class="result-score-label">Score:</span>
+          <span id="final-score" class="result-score-value">0</span>
+        </div>
+
+        <!-- 4. Buttons Section -->
+        <div class="btn-group result-btn-group">
+          <button id="btn-play-again" class="btn-primary">🔄 Play Again</button>
+          <button id="btn-leaderboard-from-result" class="btn-secondary">🏆 Leaderboard</button>
+        </div>
+        
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ LEADERBOARD SCREEN ═══════════════════════ -->
+    <section id="screen-leaderboard" class="screen" aria-label="Leaderboard Screen">
+      <div class="glass-card leaderboard-card">
+        <h2>🏆 Top Big Heads</h2>
+        <div class="leaderboard-scroll-wrap">
+          <ul id="leaderboard-list" class="leaderboard-list" aria-label="Top scores">
+            <!-- Populated by JS -->
+          </ul>
+        </div>
+        <div class="btn-group">
+          <button id="btn-home" class="btn-secondary">← Back to Home</button>
+          <button id="btn-reset-leaderboard" class="btn-accent" aria-label="Reset Leaderboard">🗑️ Reset</button>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /#app -->
+
+  <!-- Particle canvas for background decoration -->
+  <canvas id="bg-particles" aria-hidden="true"></canvas>
+
+  <!-- Floating score popups live here (appended by game.js) -->
+  <div id="score-popups" aria-hidden="true"></div>
+
+  <!-- Scripts loaded in dependency order — NO type="module" needed -->
+  <script src="js/audio.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/leaderboard.js"></script>
+  <script src="js/camera.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
