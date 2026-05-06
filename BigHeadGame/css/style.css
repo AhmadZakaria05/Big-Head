@@ -258,6 +258,36 @@ button:active { transform: scale(.95); }
   font-size: 0.85rem;
 }
 
+/* ── Leaderboard Button Specific Fixes (Mobile Responsiveness) ── */
+#btn-show-leaderboard,
+#btn-leaderboard-from-result {
+  /* Prevent text overflow */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+  /* Text handling and centering */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  
+  /* Responsive sizing replacing fixed pixels */
+  width: clamp(140px, 40vw, 260px);
+  max-width: 100%;
+  
+  /* Dynamic font scaling to ensure it fits on narrow screens like iPhone 14 Pro */
+  font-size: clamp(0.75rem, 3.8vw, 1rem);
+  
+  /* Adaptive padding */
+  padding-left: clamp(0.4rem, 2vw, 1.8rem);
+  padding-right: clamp(0.4rem, 2vw, 1.8rem);
+  
+  /* Ensure centering when used outside flex groups */
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* ══════════════════════════════════════
    CAMERA SCREEN
 ══════════════════════════════════════ */
