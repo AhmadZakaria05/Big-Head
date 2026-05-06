@@ -15,6 +15,21 @@ function initAudio() {
   try { _getCtx(); } catch (e) { /* ignore */ }
 }
 
+// ── Mobile Compatibility: Unlock AudioContext ─────────────────
+function _unlockAudioMobile() {
+  try {
+    const ctx = _getCtx();
+    if (ctx.state === 'suspended') {
+      // Resume context and fail silently if blocked
+      ctx.resume().catch(() => {}); 
+    }
+  } catch (e) { /* ignore */ }
+}
+
+// Attach ONE-TIME listeners to unlock audio on first interaction
+document.addEventListener('pointerdown', _unlockAudioMobile, { once: true });
+document.addEventListener('touchstart', _unlockAudioMobile, { once: true });
+
 // ── Internal tone helper ──────────────────────────────────────
 
 function _playTone({ freq = 440, type = 'sine', duration = 0.12, gain = 0.3, decay = 0.1, delay = 0 } = {}) {
