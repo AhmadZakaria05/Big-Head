@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Ears -->
+  <circle cx="18" cy="25" r="16" fill="#000000"/>
+  <circle cx="82" cy="25" r="16" fill="#000000"/>
+  
+  <!-- Head -->
+  <circle cx="50" cy="50" r="42" fill="#ffffff" stroke="#000000" stroke-width="4"/>
+  
+  <!-- Eye Patches -->
+  <path d="M 22 45 C 15 62, 38 65, 42 50 C 45 35, 28 32, 22 45 Z" fill="#000000" />
+  <path d="M 78 45 C 85 62, 62 65, 58 50 C 55 35, 72 32, 78 45 Z" fill="#000000" />
+  
+  <!-- Eyes (white highlights inside patches) -->
+  <circle cx="33" cy="48" r="6" fill="#ffffff"/>
+  <circle cx="67" cy="48" r="6" fill="#ffffff"/>
+  
+  <!-- Eye Pupils -->
+  <circle cx="34" cy="49" r="3" fill="#000000"/>
+  <circle cx="66" cy="49" r="3" fill="#000000"/>
+  
+  <!-- Eye catchlights -->
+  <circle cx="32" cy="47" r="1.5" fill="#ffffff"/>
+  <circle cx="68" cy="47" r="1.5" fill="#ffffff"/>
+  
+  <!-- Nose -->
+  <ellipse cx="50" cy="63" rx="7" ry="4.5" fill="#000000"/>
+  
+  <!-- Mouth -->
+  <path d="M 42 72 Q 50 82 58 72" fill="none" stroke="#000000" stroke-width="3" stroke-linecap="round"/>
+</svg>

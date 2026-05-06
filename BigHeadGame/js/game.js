@@ -47,6 +47,8 @@ const GameState = {
   spawnTimer:     null,
   countdownTimer: null,
   headGrowth:     0,
+  trapTriggered:  false,
+  trapTime:       0,
 };
 
 let _gridEl;
@@ -70,6 +72,8 @@ function startGame(faceDataUrl) {
   GameState.isPlaying      = true;
   GameState.faceDataUrl    = faceDataUrl || '';
   GameState.headGrowth     = 0;
+  GameState.trapTriggered  = false;
+  GameState.trapTime       = Math.floor(GameConfig.duration * (0.2 + Math.random() * 0.6));
 
   _clearAllTimers();
   _resetAllHoles();
@@ -328,10 +332,56 @@ function _handleTargetClick(holeData) {
 //  COUNTDOWN & GAME END
 // ─────────────────────────────────────────────────────────────
 
+function triggerTrapMoment() {
+  GameState.trapTriggered = true;
+  
+  // Pause normal spawning
+  clearTimeout(GameState.spawnTimer);
+  
+  // Clear any existing moles/faces
+  _resetAllHoles();
+  
+  // Visual feedback: Danger flash on background
+  const originalBg = document.body.style.backgroundColor;
+  const originalTransition = document.body.style.transition;
+  document.body.style.transition = 'background-color 0.1s ease';
+  document.body.style.backgroundColor = '#4c0519'; // Dark red background flash
+  
+  // Trap duration must last exactly the same duration as a normal item
+  const trapDuration = _itemLifetime(); 
+  
+  // Spawn faces in ALL 9 holes
+  GameState.holes.forEach(holeData => {
+    _activateHole(holeData, 'face');
+    
+    // Override default lifetime with the unified trap duration
+    clearTimeout(holeData.hideTimer);
+    holeData.hideTimer = setTimeout(() => {
+      if (holeData.active && !holeData.isHit) {
+        _deactivateHole(holeData);
+      }
+    }, trapDuration);
+  });
+  
+  // Clean up and resume normal spawn system
+  setTimeout(() => {
+    document.body.style.backgroundColor = originalBg;
+    document.body.style.transition = originalTransition;
+    if (GameState.isPlaying) {
+      _scheduleNextSpawn();
+    }
+  }, trapDuration + 50);
+}
+
 function _tickCountdown() {
   GameState.timeRemaining--;
   GameState.elapsedSeconds++;
   _dispatchUpdate();
+
+  // Check and trigger the trap moment
+  if (!GameState.trapTriggered && GameState.elapsedSeconds >= GameState.trapTime) {
+    triggerTrapMoment();
+  }
 
   if (GameState.timeRemaining <= 0) {
     _endGame();

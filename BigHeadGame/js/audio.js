@@ -50,8 +50,8 @@ function playHit() {
 
 /** Penalty "thud" on hitting own face */
 function playPenalty() {
-  _playTone({ freq: 180, type: 'sawtooth', duration: 0.15, gain: 0.3,  decay: 0.2 });
-  _playTone({ freq: 120, type: 'square',   duration: 0.1,  gain: 0.2,  decay: 0.15, delay: 0.06 });
+  _playTone({ freq: 180, type: 'sawtooth', duration: 0.15, gain: 0.3, decay: 0.2 });
+  _playTone({ freq: 120, type: 'square', duration: 0.1, gain: 0.2, decay: 0.15, delay: 0.06 });
 }
 
 /** Short tick played on each result-screen countdown step — pitch rises each call */

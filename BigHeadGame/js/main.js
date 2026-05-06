@@ -37,10 +37,30 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── START SCREEN ────────────────────────────────────────────
 
   document.getElementById('btn-start').addEventListener('click', () => {
-    initAudio(); // unlock AudioContext on first user gesture
+    // 1. Get exact name without modifying or normalizing
+    const rawName = document.getElementById('player-name').value;
 
-    const nameInput = document.getElementById('player-name').value.trim();
-    _app.playerName = nameInput || 'Anonymous';
+    // 2. Validation Rules: Not empty, at least 2 chars
+    if (!rawName || rawName.length < 2) {
+      alert('Name must be at least 2 characters long.');
+      return;
+    }
+
+    // 3. Duplicate Check: Exact match (case-sensitive)
+    if (typeof getScores === 'function') {
+      const scores = getScores();
+      const isDuplicate = scores.some(entry => entry.name === rawName);
+      
+      if (isDuplicate) {
+        alert('This name is already used');
+        return;
+      }
+    }
+
+    initAudio(); // unlock AudioContext on first user gesture
+    
+    // 4. Store exactly as entered
+    _app.playerName = rawName;
 
     // Navigate to camera screen
     _goToCamera(videoEl, canvasEl, captureBtn, retakeBtn, playFaceBtn, facePreview, setStatus);
@@ -121,14 +141,30 @@ document.addEventListener('DOMContentLoaded', () => {
     showScreen('screen-start');
   });
 
+  function handleResetLeaderboard() {
+    if (!confirm('Are you sure you want to reset the leaderboard?')) {
+      return;
+    }
+
+    const password = prompt('Enter password to reset leaderboard:');
+    if (password !== 'AZAA2005') {
+      alert('Wrong password');
+      return;
+    }
+
+    // Required by user instruction
+    localStorage.removeItem('leaderboard');
+    // Maintain existing leaderboard logic
+    if (typeof clearScores === 'function') clearScores();
+    
+    if (typeof renderLeaderboard === 'function') renderLeaderboard(leaderListEl);
+    
+    alert('Leaderboard has been reset');
+  }
+
   const btnResetLb = document.getElementById('btn-reset-leaderboard');
   if (btnResetLb) {
-    btnResetLb.addEventListener('click', () => {
-      if (confirm('Are you sure you want to completely clear the leaderboard?')) {
-        if (typeof clearScores === 'function') clearScores();
-        if (typeof renderLeaderboard === 'function') renderLeaderboard(leaderListEl);
-      }
-    });
+    btnResetLb.addEventListener('click', handleResetLeaderboard);
   }
 });
 
