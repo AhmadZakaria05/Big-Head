@@ -46,17 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // 3. Duplicate Check: Exact match (case-sensitive)
-    if (typeof getScores === 'function') {
-      const scores = getScores();
-      const isDuplicate = scores.some(entry => entry.name === rawName);
-      
-      if (isDuplicate) {
-        alert('This name is already used');
-        return;
-      }
-    }
-
     initAudio(); // unlock AudioContext on first user gesture
     
     // 4. Store exactly as entered
